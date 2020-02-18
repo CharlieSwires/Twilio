@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <!-- See https://github.com/gantsign/maven-parent-poms -->
+    <groupId>com.github.gantsign.parent</groupId>
+    <artifactId>java-parent</artifactId>
+    <!-- For Java 8 use the following alternate parent artifact ID -->
+    <!-- <artifactId>java8-parent</artifactId> -->
+    <version>2.1.0</version>
+    <relativePath />
+  </parent>
+
+  <groupId>Twilio</groupId>
+  <artifactId>TDemo</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <properties>
+    <docker.image>TDemo</docker.image>
+
+    <!-- Maven Enforcer check -->
+    <enforcer.skip>false</enforcer.skip>
+
+    <!-- JaCoCo code coverage check -->
+    <jacoco.file.minimum-coverage-ratio>0.75</jacoco.file.minimum-coverage-ratio>
+    <jacoco.skip>false</jacoco.skip>
+
+    <java.require.version>[11,12)</java.require.version>
+    <java.target.version>11</java.target.version>
+
+    <!-- Check dependencies are used, declared and have the correct scope -->
+    <mdep.analyze.skip>false</mdep.analyze.skip>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+  	</dependency>
+    <dependency>
+  		<groupId>com.twilio.sdk</groupId>
+  		<artifactId>twilio</artifactId>
+  		<version>7.17.0</version>
+	</dependency>
+    
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>Twilio.TDemo.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- Don't inherit license from parent POM -->
+  <licenses>
+    <license>
+      <name>TODO</name>
+    </license>
+  </licenses>
+
+  <!-- Don't inherit developers from parent POM -->
+  <developers>
+    <developer>
+      <name>TODO</name>
+    </developer>
+  </developers>
+
+  <inceptionYear>${package.getClass().forName("java.time.LocalDate").now().getYear()}</inceptionYear>
+
+  <organization>
+    <name>charlieswires</name>
+  </organization>
+
+  <profiles>
+    <profile>
+      <id>docker-local</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.google.cloud.tools</groupId>
+            <artifactId>jib-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>docker-images</id>
+                <goals>
+                  <goal>dockerBuild</goal>
+                </goals>
+                <phase>package</phase>
+                <configuration>
+                  <to>
+                    <image>${docker.image}:${project.version}</image>
+                    <tags>
+                      <tag>latest</tag>
+                    </tags>
+                  </to>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <docker.image>${docker.image}:${project.version}</docker.image>
+              </systemPropertyVariables>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
